@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2C5F5D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kolya自由倒數">
+    <title>Kolya自由倒數</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sand-light: #F5F1EB;
+            --sand-warm: #E8E0D5;
+            --ocean-deep: #2C5F5D;
+            --ocean-mid: #4A8B8B;
+            --ocean-light: #7FB3B3;
+            --earth-brown: #8B7355;
+            --earth-dark: #5D4E3A;
+            --driftwood: #A69580;
+            --sunset-gold: #C9A962;
+            --soft-shadow: rgba(93, 78, 58, 0.12);
+            --text-primary: #3D3D3D;
+            --text-secondary: #6B6B6B;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        [data-theme="dark"] {
+            --sand-light: #1a1a2e;
+            --sand-warm: #16213e;
+            --ocean-deep: #4A8B8B;
+            --ocean-mid: #7FB3B3;
+            --ocean-light: #a8d5d5;
+            --earth-brown: #c9a962;
+            --earth-dark: #e8e0d5;
+            --driftwood: #8B7355;
+            --sunset-gold: #f0d78c;
+            --soft-shadow: rgba(0, 0, 0, 0.3);
+            --text-primary: #e8e0d5;
+            --text-secondary: #a69580;
+            --card-bg: rgba(22, 33, 62, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--sand-light);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .background-layer {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+        }
+
+        .background-layer.no-bg {
+            background-image: none !important;
+            background: var(--sand-light);
+        }
+
+        .main-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 60px;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .title {
+            font-family: 'LXGW WenKai TC', 'Noto Serif TC', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: var(--ocean-deep);
+            margin-bottom: 12px;
+            letter-spacing: 4px;
+            background: rgba(255, 255, 255, 0.75);
+            padding: 10px 22px;
+            border-radius: 30px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] .title {
+            background: rgba(22, 33, 62, 0.8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .title-icon { margin: 0 6px; }
+
+        .unified-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px 30px;
+            box-shadow: 0 8px 32px var(--soft-shadow);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .target-date {
+            font-family: 'LXGW WenKai TC', serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .days-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .days-remaining {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--ocean-deep);
+            line-height: 1;
+        }
+
+        .days-label {
+            font-family: 'LXGW WenKai TC', serif;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+        }
+
+        .time-details {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .time-item {
+            text-align: center;
+            padding: 8px 14px;
+            background: var(--sand-warm);
+            border-radius: 10px;
+        }
+
+        .time-value {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--earth-dark);
+        }
+
+        .time-unit { font-size: 0.75rem; color: var(--text-secondary); }
+
+        .workdays {
+            background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .workdays-number {
+            font-family: 'Noto Serif TC', serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .progress-section { margin-bottom: 18px; }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--sand-warm);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ocean-mid), var(--sunset-gold));
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .progress-percent {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .quote-section {
+            border-top: 1px solid var(--sand-warm);
+            padding-top: 15px;
+            margin-top: 5px;
+        }
+
+        .quote-text {
+            font-family: 'LXGW WenKai TC', serif;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-weight: 400;
+        }
+
+        .quote-text .quote-translation {
+            display: block;
+            margin-top: 4px;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+        }
+
+        .quote-author {
+            font-family: 'LXGW WenKai TC', serif;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .milestone {
+            background: linear-gradient(135deg, var(--sunset-gold), var(--earth-brown));
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 20px var(--soft-shadow);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 8px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn span { font-size: 1.3rem; }
+        .nav-btn:hover, .nav-btn.active { color: var(--ocean-deep); background: var(--sand-warm); }
+
+        .panel {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            background: var(--sand-light);
+            z-index: 200;
+            transition: all 0.4s ease;
+            overflow-y: auto;
+        }
+
+        .settings-panel { right: -100%; }
+        .wishlist-panel { left: -100%; }
+        .settings-panel.open { right: 0; }
+        .wishlist-panel.open { left: 0; }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid));
+            color: white;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .panel-title { font-family: 'LXGW WenKai TC', serif; font-size: 1.2rem; }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .panel-content { padding: 15px; }
+
+        .settings-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-family: 'LXGW WenKai TC', serif;
+            font-size: 1rem;
+            color: var(--earth-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-header .section-title { margin-bottom: 0; }
+
+        label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
+
+        input[type="date"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--sand-warm);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--text-primary);
+            background: var(--sand-light);
+        }
+
+        input:focus, textarea:focus { outline: none; border-color: var(--ocean-mid); }
+        textarea { resize: vertical; min-height: 70px; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Noto Sans TC', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-mid)); color: white; }
+        .btn-secondary { background: var(--sand-warm); color: var(--earth-dark); }
+        .btn-cancel { background: #ccc; color: #555; }
+        .btn-small { padding: 6px 12px; font-size: 0.85rem; }
+        .btn-block { width: 100%; }
+
+        .mode-options { display: flex; flex-direction: column; gap: 8px; }
+
+        .mode-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--sand-warm);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .mode-option.active { background: var(--ocean-deep); color: white; }
+        .mode-option input { display: none; }
+        .mode-icon { font-size: 1.1rem; margin-right: 10px; }
+
+        /* 圖庫樣式 */
+        .image-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+            min-height: 80px;
+        }
+
+        .image-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            background: var(--sand-warm);
+        }
+
+        .image-item.selected { border-color: var(--ocean-mid); }
+        .image-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        .image-item .img-error {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            text-align: center;
+            padding: 5px;
+            background: var(--sand-warm);
+        }
+
+        .image-item .img-error .error-icon { font-size: 1.2rem; margin-bottom: 3px; }
+
+        .image-item .img-actions {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .image-item:hover .img-actions { display: flex; }
+        .image-item.error-item .img-actions { display: flex; background: transparent; }
+
+        .img-action-btn {
+            width: 32px; height: 32px;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-action-btn.select { background: var(--ocean-mid); color: white; }
+        .img-action-btn.delete { background: rgba(192, 57, 43, 0.9); color: white; }
+
+        /* 無背景選項 */
+        .no-bg-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--sand-light), var(--sand-warm));
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            border: 2px dashed var(--driftwood);
+        }
+
+        .no-bg-option.selected { border-color: var(--ocean-mid); border-style: solid; }
+
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; }
+
+        .tab {
+            flex: 1;
+            padding: 8px;
+            background: var(--sand-warm);
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .tab.active { background: var(--ocean-deep); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .theme-toggle { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px; height: 26px;
+            background: var(--sand-warm);
+            border-radius: 13px;
+            cursor: pointer;
+        }
+
+        .toggle-switch.active { background: var(--ocean-deep); }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 20px; height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::after { transform: translateX(24px); }
+
+        /* 編輯按鈕組 */
+        .edit-btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edit-btn-group .btn {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* 願望清單 */
+        .add-wish-form { display: flex; gap: 8px; margin-bottom: 15px; }
+        .add-wish-form input { flex: 1; }
+
+        .wish-list-wrapper {
+            position: relative;
+            height: calc(100vh - 280px);
+            min-height: 200px;
+        }
+
+        .wish-list {
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .scroll-zone {
+            position: absolute;
+            left: 0; right: 0;
+            height: 60px;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .scroll-zone.top { top: 0; background: linear-gradient(to bottom, rgba(74,139,139,0.3), transparent); }
+        .scroll-zone.bottom { bottom: 0; background: linear-gradient(to top, rgba(74,139,139,0.3), transparent); }
+        .scroll-zone.active { opacity: 1; }
+
+        .wish-group {
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .wish-group.dragging { opacity: 0.5; }
+
+        .wish-parent {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+        }
+
+        .drag-handle {
+            color: var(--driftwood);
+            margin-right: 10px;
+            font-size: 1.2rem;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .drag-handle:active { cursor: grabbing; }
+
+        .wish-checkbox {
+            width: 22px; height: 22px;
+            border: 2px solid var(--ocean-mid);
+            border-radius: 50%;
+            margin-right: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+        }
+
+        .wish-checkbox.checked { background: var(--ocean-mid); color: white; }
+
+        .wish-text {
+            flex: 1;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .wish-text:hover { background: var(--sand-warm); }
+        .wish-text.completed { text-decoration: line-through; color: var(--text-secondary); }
+
+        .wish-text-input {
+            flex: 1;
+            padding: 6px 8px;
+            border: 2px solid var(--ocean-mid);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: 'Noto Sans TC', sans-serif;
+            background: white;
+        }
+
+        .wish-actions { display: flex; gap: 5px; }
+
+        .wish-action-btn {
+            width: 28px; height: 28px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wish-action-btn:hover { background: var(--sand-warm); }
+        .wish-action-btn.delete:hover { background: rgba(192, 57, 43, 0.1); color: #c0392b; }
+
+        .expand-btn { transition: transform 0.3s ease; }
+        .expand-btn.expanded { transform: rotate(180deg); }
+
+        .sub-wishes { padding: 0 15px 10px 50px; display: none; }
+        .sub-wishes.show { display: block; }
+
+        .sub-wish-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--sand-warm);
+        }
+
+        .sub-wish-item:last-child { border-bottom: none; }
+        .sub-wish-item .wish-checkbox { width: 18px; height: 18px; margin-right: 10px; }
+        .sub-wish-item .wish-text { font-size: 0.9rem; }
+
+        .sub-wish-item .drag-handle-sub {
+            color: var(--driftwood);
+            margin-right: 8px;
+            font-size: 1rem;
+            cursor: grab;
+        }
+
+        .sub-wish-item.dragging { opacity: 0.5; background: var(--sand-warm); border-radius: 6px; }
+
+        .add-sub-wish {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: var(--ocean-mid);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .add-sub-wish:hover { color: var(--ocean-deep); }
+
+        .drop-zone {
+            height: 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone.active {
+            height: 40px;
+            background: rgba(74, 139, 139, 0.15);
+            border: 2px dashed var(--ocean-mid);
+        }
+
+        .sub-drop-zone {
+            height: 4px;
+            margin: 2px 0;
+            transition: all 0.2s ease;
+        }
+
+        .sub-drop-zone.active {
+            height: 30px;
+            background: rgba(74, 139, 139, 0.15);
+            border: 2px dashed var(--ocean-mid);
+            border-radius: 4px;
+        }
+
+        /* 名言管理 */
+        .quote-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quote-list-header input { flex: 1; }
+
+        .quote-list { max-height: 280px; overflow-y: auto; margin-top: 8px; }
+
+        .quote-item {
+            background: var(--sand-warm);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .quote-item.hidden-quote { opacity: 0.5; }
+
+        .quote-item-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            padding-right: 80px;
+            line-height: 1.5;
+        }
+
+        .quote-item-author { font-size: 0.75rem; color: var(--text-secondary); }
+
+        .quote-item-actions {
+            position: absolute;
+            top: 8px; right: 8px;
+            display: none;
+            gap: 4px;
+        }
+
+        .quote-item-actions.show { display: flex; }
+
+        .quote-action-btn {
+            width: 26px; height: 26px;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quote-action-btn.edit { background: var(--ocean-mid); color: white; }
+        .quote-action-btn.hide { background: var(--driftwood); color: white; }
+        .quote-action-btn.delete { background: rgba(192, 57, 43, 0.8); color: white; }
+        .quote-action-btn.restore { background: var(--sunset-gold); color: white; }
+
+        .restore-all-btn {
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        .edit-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 350;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .edit-modal.show { display: flex; }
+
+        .edit-modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .edit-modal-title {
+            font-family: 'LXGW WenKai TC', serif;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--earth-dark);
+        }
+
+        .edit-modal textarea { min-height: 100px; margin-bottom: 10px; }
+        .edit-modal input { margin-bottom: 15px; }
+
+        .edit-modal-btns { display: flex; gap: 10px; }
+        .edit-modal-btns .btn { flex: 1; }
+
+        .storage-info {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            padding: 8px;
+            background: var(--sand-warm);
+            border-radius: 6px;
+        }
+
+        .backup-info {
+            background: var(--sand-warm);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .backup-info strong { color: var(--earth-dark); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+        .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--earth-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 400;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 150;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .overlay.show { opacity: 1; visibility: visible; }
+
+        .hidden-input { display: none; }
+        .input-hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 5px; line-height: 1.4; }
+        .btn-group { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-group .btn { flex: 1; }
+
+        .celebration-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .celebration-overlay.show { opacity: 1; visibility: visible; }
+
+        .celebration-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            max-width: 320px;
+            transform: scale(0.8);
+            transition: transform 0.5s ease;
+        }
+
+        .celebration-overlay.show .celebration-card { transform: scale(1); }
+        .celebration-emoji { font-size: 3.5rem; margin-bottom: 15px; animation: bounce 1s infinite; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .celebration-title { font-family: 'LXGW WenKai TC', serif; font-size: 1.4rem; color: var(--ocean-deep); margin-bottom: 8px; }
+        .celebration-message { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 20px; }
+
+        .confetti {
+            position: fixed;
+            width: 10px; height: 10px;
+            z-index: 501;
+            animation: fall 3s linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .bulk-import-area { min-height: 120px; font-family: monospace; font-size: 0.8rem; line-height: 1.5; }
+
+        @media (max-height: 700px) {
+            .main-container { padding: 10px; }
+            .title { font-size: 1.2rem; margin-bottom: 8px; }
+            .unified-card { padding: 20px 25px; }
+            .days-remaining { font-size: 3.8rem; }
+            .time-details { gap: 8px; margin: 10px 0; }
+            .time-item { padding: 6px 10px; }
+            .time-value { font-size: 1rem; }
+            .workdays { padding: 8px 15px; font-size: 0.85rem; margin-bottom: 10px; }
+            .quote-section { padding-top: 12px; }
+            .quote-text { font-size: 0.82rem; }
+        }
+
+        @media (max-height: 600px) {
+            .time-details { display: none; }
+            .days-remaining { font-size: 3.2rem; }
+        }
+
+        @media (max-width: 380px) {
+            .unified-card { padding: 18px 20px; }
+            .days-remaining { font-size: 3.5rem; }
+            .image-list { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-layer" id="bgLayer"></div>
+
+    <div class="main-container">
+        <h1 class="title" id="mainTitle">
+            <span class="title-icon">🌊</span><span id="titleText">Kolya自由倒數</span><span class="title-icon">⛺</span>
+        </h1>
+        
+        <div class="unified-card">
+            <div class="target-date" id="targetDate">目標日期：2028年2月10日</div>
+            <div class="milestone" id="milestone" style="display: none;"></div>
+            
+            <div class="days-row">
+                <div class="days-remaining" id="daysRemaining">---</div>
+                <div class="days-label">天</div>
+            </div>
+            
+            <div class="time-details">
+                <div class="time-item">
+                    <div class="time-value" id="yearsRemaining">-</div>
+                    <div class="time-unit">年</div>
+                </div>
+                <div class="time-item">
+                    <div class="time-value" id="monthsRemaining">-</div>
+                    <div class="time-unit">月</div>
+                </div>
+                <div class="time-item">
+                    <div class="time-value" id="weeksRemaining">-</div>
+                    <div class="time-unit">週</div>
+                </div>
+            </div>
+            
+            <div class="workdays">
+                還要上班 <span class="workdays-number" id="workdaysRemaining">---</span> 天
+            </div>
+            
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-percent" id="progressPercent">已完成 0%</div>
+            </div>
+
+            <div class="quote-section">
+                <div class="quote-text" id="quoteText">「載入中...」</div>
+                <div class="quote-author" id="quoteAuthor"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" id="wishlistBtn"><span>📋</span>願望</button>
+        <button class="nav-btn active" id="homeBtn"><span>🏠</span>首頁</button>
+        <button class="nav-btn" id="settingsBtn"><span>⚙️</span>設定</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 願望清單面板 -->
+    <div class="panel wishlist-panel" id="wishlistPanel">
+        <div class="panel-header">
+            <div class="panel-title">📋 願望清單</div>
+            <button class="close-btn" id="closeWishlistBtn">✕</button>
+        </div>
+        <div class="panel-content">
+            <div class="add-wish-form">
+                <input type="text" id="newWishInput" placeholder="新增願望...">
+                <button class="btn btn-primary" id="addWishBtn">➕</button>
+            </div>
+            <p class="input-hint" style="margin-bottom:15px;">💡 點文字可編輯｜拖 ☰ 調順序｜子項可拖到外面變母項</p>
+            <div class="wish-list-wrapper">
+                <div class="scroll-zone top" id="scrollZoneTop"></div>
+                <div class="wish-list" id="wishList"></div>
+                <div class="scroll-zone bottom" id="scrollZoneBottom"></div>
+            </div>
+            <p class="input-hint" id="wishCount">共 0 個願望</p>
+        </div>
+    </div>
+
+    <!-- 設定面板 -->
+    <div class="panel settings-panel" id="settingsPanel">
+        <div class="panel-header">
+            <div class="panel-title">⚙️ 設定</div>
+            <button class="close-btn" id="closeBtn">✕</button>
+        </div>
+        
+        <div class="panel-content">
+            <div class="settings-section">
+                <div class="section-title"><span>🌙</span> 顯示模式</div>
+                <div class="theme-toggle">
+                    <span>深色模式</span>
+                    <div class="toggle-switch" id="themeToggle"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-title"><span>✏️</span> 首頁標題</div>
+                <input type="text" id="customTitle" placeholder="Kolya自由倒數">
+                <button class="btn btn-primary btn-block" style="margin-top: 10px;" id="saveTitleBtn">💾 儲存標題</button>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-title"><span>📅</span> 退休日期</div>
+                <input type="date" id="retirementDate" value="2028-02-10">
+                <button class="btn btn-primary btn-block" style="margin-top: 10px;" id="saveDateBtn">💾 儲存日期</button>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-title"><span>🖼️</span> 背景圖片</div>
+                
+                <div class="mode-options">
+                    <label class="mode-option" id="modeDaily">
+                        <input type="radio" name="bgMode" value="daily">
+                        <span class="mode-icon">📆</span><span>每日換</span>
+                    </label>
+                    <label class="mode-option" id="modeRandom">
+                        <input type="radio" name="bgMode" value="random">
+                        <span class="mode-icon">🎲</span><span>隨機換</span>
+                    </label>
+                    <label class="mode-option" id="modeFixed">
+                        <input type="radio" name="bgMode" value="fixed">
+                        <span class="mode-icon">📌</span><span>固定</span>
+                    </label>
+                </div>
+                
+                <p class="input-hint" style="margin-top:10px;">滑鼠移到圖片上可選擇或刪除</p>
+                <div class="image-list" id="imageList"></div>
+                
+                <div style="margin-top: 15px;">
+                    <div class="tabs">
+                        <button class="tab active" data-tab="upload">上傳</button>
+                        <button class="tab" data-tab="url">網址</button>
+                    </div>
+                    <div class="tab-content active" id="tabUpload">
+                        <input type="file" accept="image/*" id="imageUpload" class="hidden-input">
+                        <button class="btn btn-secondary btn-block" id="uploadBtn">📷 選擇照片</button>
+                        <p class="input-hint">從手機或電腦選擇圖片上傳（建議小於 500KB）</p>
+                    </div>
+                    <div class="tab-content" id="tabUrl">
+                        <input type="text" id="imageUrl" placeholder="貼上圖片網址...">
+                        <p class="input-hint">⚠️ 許多網站會阻擋外部引用，建議用「上傳」功能</p>
+                        <button class="btn btn-secondary btn-block" style="margin-top: 8px;" id="addUrlBtn">➕ 新增</button>
+                    </div>
+                </div>
+                
+                <div class="storage-info" id="storageInfo">儲存空間...</div>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-header">
+                    <div class="section-title"><span>💬</span> 名言佳句</div>
+                    <div class="edit-btn-group" id="quoteEditBtnGroup">
+                        <button class="btn btn-secondary" id="quoteEditBtn">✏️ 編輯</button>
+                    </div>
+                </div>
+                <div class="tabs">
+                    <button class="tab active" data-tab="addQuote">新增</button>
+                    <button class="tab" data-tab="bulkImport">批量</button>
+                    <button class="tab" data-tab="manageQuotes">管理</button>
+                </div>
+                <div class="tab-content active" id="tabAddQuote">
+                    <textarea id="newQuoteText" placeholder="名言內容...（英文與中文翻譯請分兩行輸入）"></textarea>
+                    <input type="text" id="newQuoteAuthor" placeholder="作者（必填）" style="margin-top:8px;">
+                    <button class="btn btn-primary btn-block" style="margin-top: 10px;" id="addQuoteBtn">➕ 新增</button>
+                </div>
+                <div class="tab-content" id="tabBulkImport">
+                    <p class="input-hint" style="margin-bottom: 8px;">
+                        格式：名言|作者（一行一句）<br>
+                        例：Stay hungry. 求知若飢。|Steve Jobs 賈伯斯
+                    </p>
+                    <textarea id="bulkImportText" class="bulk-import-area" placeholder="貼上多筆名言..."></textarea>
+                    <button class="btn btn-primary btn-block" style="margin-top: 10px;" id="bulkImportBtn">📥 匯入</button>
+                </div>
+                <div class="tab-content" id="tabManageQuotes">
+                    <div class="quote-list-header">
+                        <input type="text" id="searchQuote" placeholder="🔍 搜尋...">
+                    </div>
+                    <div class="quote-list" id="quoteList"></div>
+                    <p class="input-hint" id="quoteCount">共 0 則</p>
+                    <button class="btn btn-secondary btn-block restore-all-btn" id="restoreAllBtn" style="display:none;">🔄 恢復所有隱藏的名言</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-title"><span>💾</span> 備份與還原</div>
+                <div class="backup-info">
+                    <strong>📤 匯出備份</strong><br>
+                    下載 .json 檔案，包含所有設定、願望、名言、圖片。<br><br>
+                    <strong>📥 匯入備份</strong><br>
+                    選擇之前匯出的 .json 檔案，還原所有資料。<br><br>
+                    <strong>💡 用途</strong>：換手機、定期備份時使用。
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="exportBtn">📤 匯出</button>
+                    <button class="btn btn-secondary" id="importBtn">📥 匯入</button>
+                </div>
+                <input type="file" accept=".json" id="importFile" class="hidden-input">
+            </div>
+        </div>
+    </div>
+
+    <!-- 編輯名言彈窗 -->
+    <div class="edit-modal" id="editModal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-title">✏️ 編輯名言</div>
+            <textarea id="editQuoteText" placeholder="名言內容..."></textarea>
+            <input type="text" id="editQuoteAuthor" placeholder="作者">
+            <div class="edit-modal-btns">
+                <button class="btn btn-cancel" id="cancelEditBtn">取消</button>
+                <button class="btn btn-primary" id="saveEditBtn">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 慶祝動畫 -->
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-card">
+            <div class="celebration-emoji" id="celebrationEmoji">🎉</div>
+            <div class="celebration-title" id="celebrationTitle">恭喜！</div>
+            <div class="celebration-message" id="celebrationMessage">達成里程碑！</div>
+            <button class="btn btn-primary" id="closeCelebrationBtn">太棒了！</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const defaultQuotesOriginal = [
+            { text: "人生如逆旅，我亦是行人。", author: "蘇軾" },
+            { text: "此心安處是吾鄉。", author: "蘇軾" },
+            { text: "行到水窮處，坐看雲起時。", author: "王維" },
+            { text: "採菊東籬下，悠然見南山。", author: "陶淵明" },
+            { text: "不以物喜，不以己悲。", author: "范仲淹" },
+            { text: "長風破浪會有時，直掛雲帆濟滄海。", author: "李白" },
+            { text: "天生我材必有用。", author: "李白" },
+            { text: "山重水複疑無路，柳暗花明又一村。", author: "陸游" },
+            { text: "上善若水，水善利萬物而不爭。", author: "老子《道德經》" },
+            { text: "千里之行，始於足下。", author: "老子《道德經》" },
+            { text: "相濡以沫，不如相忘於江湖。", author: "莊子" },
+            { text: "三十而立，四十而不惑，五十而知天命。", author: "孔子《論語》" },
+            { text: "己所不欲，勿施於人。", author: "孔子《論語》" },
+            { text: "窮則獨善其身，達則兼善天下。", author: "孟子" },
+            { text: "春有百花秋有月，夏有涼風冬有雪。\n若無閒事掛心頭，便是人間好時節。", author: "無門慧開" },
+            { text: "應無所住而生其心。", author: "《金剛經》" },
+            { text: "寵辱不驚，看庭前花開花落；\n去留無意，望天上雲卷雲舒。", author: "洪應明《菜根譚》" },
+            { text: "人生不如意事十之八九，常想一二，不思八九。", author: "林清玄" },
+            { text: "The only true wisdom is in knowing you know nothing.\n真正的智慧，是知道自己一無所知。", author: "Socrates 蘇格拉底" },
+            { text: "Your time is limited, don't waste it living someone else's life.\n你的時間有限，不要浪費時間過別人的生活。", author: "Steve Jobs 賈伯斯" },
+            { text: "Stay hungry, stay foolish.\n求知若飢，虛心若愚。", author: "Steve Jobs 賈伯斯" },
+            { text: "The best investment you can make is in yourself.\n最好的投資，是投資自己。", author: "Warren Buffett 巴菲特" },
+            { text: "The wound is the place where the Light enters you.\n傷口是光進入你的地方。", author: "Rumi 魯米" },
+            { text: "What you seek is seeking you.\n你尋找的，也在尋找你。", author: "Rumi 魯米" },
+            { text: "In a world deluged by irrelevant information, clarity is power.\n在充斥無關資訊的世界，清晰就是力量。", author: "Yuval Harari 哈拉瑞" },
+            { text: "Be the change you wish to see in the world.\n成為你想在世界上看到的改變。", author: "Gandhi 甘地" },
+            { text: "Be yourself; everyone else is already taken.\n做你自己，因為別人都有人做了。", author: "Oscar Wilde 王爾德" },
+            { text: "It is never too late to be what you might have been.\n成為你可能成為的人，永遠不嫌遲。", author: "George Eliot 喬治·艾略特" }
+        ];
+
+        const defaultImagesOriginal = [
+            "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800",
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+            "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+            "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800"
+        ];
+
+        const milestones = [
+            { days: 1, emoji: "🎊", title: "明天就自由了！", message: "最後一天！" },
+            { days: 7, emoji: "🌟", title: "倒數一週！", message: "只剩七天！" },
+            { days: 30, emoji: "📅", title: "倒數一個月！", message: "三十天後就自由了！" },
+            { days: 100, emoji: "💯", title: "倒數 100 天！", message: "快了！" },
+            { days: 365, emoji: "🗓️", title: "倒數一年！", message: "一年後就自由了！" }
+        ];
+
+        let settings = {
+            retirementDate: "2028-02-10",
+            startDate: new Date().toISOString().split('T')[0],
+            bgMode: "daily",
+            selectedImage: null,
+            noBackground: false,
+            customQuotes: [],
+            customImages: [],
+            wishlist: [],
+            darkMode: false,
+            celebratedMilestones: [],
+            customTitle: "Kolya自由倒數",
+            editedDefaultQuotes: {},
+            hiddenDefaultQuotes: [],
+            deletedDefaultQuotes: [],
+            deletedDefaultImages: []
+        };
+
+        let quoteEditMode = false;
+        let editingQuoteType = null;
+        let editingQuoteIndex = -1;
+        let dragType = null;
+        let dragData = null;
+        let autoScrollInterval = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            migrateData();
+            applyTheme();
+            updateTitle();
+            updateCountdown();
+            updateQuote();
+            updateBackground();
+            updateImageList();
+            updateQuoteList();
+            updateWishList();
+            updateStorageInfo();
+            setupEventListeners();
+            checkMilestoneCelebration();
+            setInterval(updateCountdown, 60000);
+        });
+
+        function migrateData() {
+            if (settings.wishlist.length > 0 && settings.wishlist[0] && !settings.wishlist[0].hasOwnProperty('subItems')) {
+                settings.wishlist = settings.wishlist.map((item, i) => ({
+                    id: Date.now() + i,
+                    text: typeof item === 'string' ? item : item.text,
+                    completed: typeof item === 'object' ? item.completed : false,
+                    expanded: false,
+                    subItems: []
+                }));
+                saveSettings();
+            }
+            if (!settings.deletedDefaultImages) settings.deletedDefaultImages = [];
+            if (settings.noBackground === undefined) settings.noBackground = false;
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('kolyaFreedomCountdown');
+            if (saved) settings = { ...settings, ...JSON.parse(saved) };
+            document.getElementById('retirementDate').value = settings.retirementDate;
+            document.getElementById('customTitle').value = settings.customTitle || 'Kolya自由倒數';
+            const modeMap = { daily: 'modeDaily', random: 'modeRandom', fixed: 'modeFixed' };
+            document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('active'));
+            document.getElementById(modeMap[settings.bgMode])?.classList.add('active');
+            if (settings.darkMode) document.getElementById('themeToggle').classList.add('active');
+        }
+
+        function saveSettings() { localStorage.setItem('kolyaFreedomCountdown', JSON.stringify(settings)); }
+        function applyTheme() { document.documentElement.setAttribute('data-theme', settings.darkMode ? 'dark' : 'light'); }
+        function updateTitle() { document.getElementById('titleText').textContent = settings.customTitle || 'Kolya自由倒數'; }
+
+        function toggleTheme() {
+            settings.darkMode = !settings.darkMode;
+            saveSettings();
+            applyTheme();
+            document.getElementById('themeToggle').classList.toggle('active');
+            showToast(settings.darkMode ? '深色模式 🌙' : '淺色模式 ☀️');
+        }
+
+        function updateCountdown() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const targetDate = new Date(settings.retirementDate); targetDate.setHours(0, 0, 0, 0);
+            const startDate = new Date(settings.startDate); startDate.setHours(0, 0, 0, 0);
+            
+            document.getElementById('targetDate').textContent = `目標：${targetDate.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+            
+            const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+            document.getElementById('daysRemaining').textContent = diffDays > 0 ? diffDays : '🎉';
+            
+            if (diffDays > 0) {
+                document.getElementById('yearsRemaining').textContent = Math.floor(diffDays / 365);
+                document.getElementById('monthsRemaining').textContent = Math.floor(diffDays / 30);
+                document.getElementById('weeksRemaining').textContent = Math.floor(diffDays / 7);
+                document.getElementById('workdaysRemaining').textContent = calculateWorkdays(today, targetDate);
+            }
+            
+            let progress = Math.max(0, Math.min(100, ((today - startDate) / (targetDate - startDate)) * 100));
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressPercent').textContent = `已完成 ${progress.toFixed(1)}%`;
+            
+            showMilestoneIndicator(diffDays);
+        }
+
+        function calculateWorkdays(start, end) {
+            let count = 0;
+            const current = new Date(start);
+            while (current < end) {
+                if (current.getDay() !== 0 && current.getDay() !== 6) count++;
+                current.setDate(current.getDate() + 1);
+            }
+            return count;
+        }
+
+        function showMilestoneIndicator(days) {
+            const el = document.getElementById('milestone');
+            const m = milestones.find(m => m.days === days);
+            if (m) { el.textContent = `${m.emoji} ${m.title}`; el.style.display = 'block'; }
+            else { el.style.display = 'none'; }
+        }
+
+        function checkMilestoneCelebration() {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const targetDate = new Date(settings.retirementDate); targetDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+            const m = milestones.find(m => m.days === diffDays);
+            const todayStr = today.toISOString().split('T')[0];
+            
+            if (m && !settings.celebratedMilestones.includes(`${m.days}-${todayStr}`)) {
+                showCelebration(m);
+                settings.celebratedMilestones.push(`${m.days}-${todayStr}`);
+                saveSettings();
+            }
+        }
+
+        function showCelebration(m) {
+            document.getElementById('celebrationEmoji').textContent = m.emoji;
+            document.getElementById('celebrationTitle').textContent = m.title;
+            document.getElementById('celebrationMessage').textContent = m.message;
+            document.getElementById('celebrationOverlay').classList.add('show');
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#C9A962', '#4A8B8B', '#8B7355', '#7FB3B3', '#2C5F5D'];
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random() * 100 + 'vw';
+                    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(c);
+                    setTimeout(() => c.remove(), 4000);
+                }, i * 50);
+            }
+        }
+
+        // ===== 名言 =====
+        function getActiveQuotes() {
+            const quotes = [];
+            defaultQuotesOriginal.forEach((q, i) => {
+                if (!settings.deletedDefaultQuotes?.includes(i) && !settings.hiddenDefaultQuotes?.includes(i)) {
+                    quotes.push(settings.editedDefaultQuotes?.[i] || q);
+                }
+            });
+            settings.customQuotes.forEach(q => quotes.push(q));
+            return quotes;
+        }
+
+        function formatQuoteText(text) {
+            if (text.includes('\n')) {
+                const lines = text.split('\n');
+                return `「${lines[0]}」<span class="quote-translation">${lines.slice(1).join(' ')}</span>`;
+            }
+            const match = text.match(/^([A-Za-z][^。！？]*[.!?])\s*(.+)$/);
+            if (match && /[\u4e00-\u9fff]/.test(match[2])) {
+                return `「${match[1]}」<span class="quote-translation">${match[2]}</span>`;
+            }
+            return `「${text}」`;
+        }
+
+        function updateQuote() {
+            const quotes = getActiveQuotes();
+            if (quotes.length === 0) {
+                document.getElementById('quoteText').innerHTML = '「無名言可顯示」';
+                document.getElementById('quoteAuthor').textContent = '';
+                return;
+            }
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+            const q = quotes[dayOfYear % quotes.length];
+            document.getElementById('quoteText').innerHTML = formatQuoteText(q.text);
+            document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
+        }
+
+        // ===== 圖片 =====
+        function getActiveImages() {
+            const images = [];
+            defaultImagesOriginal.forEach((url, i) => {
+                if (!settings.deletedDefaultImages?.includes(i)) {
+                    images.push({ url, type: 'default', index: i });
+                }
+            });
+            settings.customImages.forEach((url, i) => {
+                images.push({ url, type: 'custom', index: i });
+            });
+            return images;
+        }
+
+        function updateBackground() {
+            const bgLayer = document.getElementById('bgLayer');
+            
+            if (settings.noBackground) {
+                bgLayer.classList.add('no-bg');
+                bgLayer.style.backgroundImage = 'none';
+                return;
+            }
+            
+            bgLayer.classList.remove('no-bg');
+            
+            const images = getActiveImages();
+            if (images.length === 0) {
+                bgLayer.style.backgroundImage = 'none';
+                return;
+            }
+            
+            let url;
+            switch (settings.bgMode) {
+                case 'daily':
+                    const today = new Date();
+                    const day = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+                    url = images[day % images.length].url;
+                    break;
+                case 'random':
+                    url = images[Math.floor(Math.random() * images.length)].url;
+                    break;
+                case 'fixed':
+                    url = settings.selectedImage || images[0].url;
+                    break;
+            }
+            bgLayer.style.backgroundImage = `url(${url})`;
+        }
+
+        function updateImageList() {
+            const container = document.getElementById('imageList');
+            let html = '';
+            
+            // 無背景選項
+            html += `
+                <div class="image-item no-bg-option ${settings.noBackground ? 'selected' : ''}" onclick="selectNoBackground()">
+                    🚫<br>無背景
+                </div>
+            `;
+            
+            // 預設圖片
+            defaultImagesOriginal.forEach((url, i) => {
+                const isDeleted = settings.deletedDefaultImages?.includes(i);
+                if (isDeleted) return;
+                
+                const isSelected = !settings.noBackground && settings.selectedImage === url;
+                
+                html += `
+                    <div class="image-item ${isSelected ? 'selected' : ''}" data-url="${url}" data-type="default" data-index="${i}" id="img-default-${i}">
+                        <img src="${url}" alt="背景 ${i+1}" onload="this.parentElement.dataset.loaded='true'" onerror="handleImageError(this, 'default', ${i})">
+                        <div class="img-error" style="display:none;"><span class="error-icon">⚠️</span>載入失敗</div>
+                        <div class="img-actions">
+                            <button class="img-action-btn select" onclick="event.stopPropagation(); selectImage('${url}')" title="設為背景">✓</button>
+                            <button class="img-action-btn delete" onclick="event.stopPropagation(); deleteDefaultImage(${i})" title="刪除">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 自訂圖片
+            settings.customImages.forEach((url, i) => {
+                const isSelected = !settings.noBackground && settings.selectedImage === url;
+                
+                html += `
+                    <div class="image-item ${isSelected ? 'selected' : ''}" data-url="${url}" data-type="custom" data-index="${i}" id="img-custom-${i}">
+                        <img src="${url}" alt="自訂背景 ${i+1}" onload="this.parentElement.dataset.loaded='true'" onerror="handleImageError(this, 'custom', ${i})">
+                        <div class="img-error" style="display:none;"><span class="error-icon">⚠️</span>載入失敗</div>
+                        <div class="img-actions">
+                            <button class="img-action-btn select" onclick="event.stopPropagation(); selectImage('${url}')" title="設為背景">✓</button>
+                            <button class="img-action-btn delete" onclick="event.stopPropagation(); deleteCustomImage(${i})" title="刪除">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function handleImageError(img, type, index) {
+            img.style.display = 'none';
+            img.nextElementSibling.style.display = 'flex';
+            const item = img.parentElement;
+            item.classList.add('error-item');
+            
+            // 重新設置操作按鈕，只保留刪除
+            const actionsDiv = item.querySelector('.img-actions');
+            if (type === 'default') {
+                actionsDiv.innerHTML = `<button class="img-action-btn delete" onclick="event.stopPropagation(); deleteDefaultImage(${index})" title="刪除">✕</button>`;
+            } else {
+                actionsDiv.innerHTML = `<button class="img-action-btn delete" onclick="event.stopPropagation(); deleteCustomImage(${index})" title="刪除">✕</button>`;
+            }
+        }
+
+        function selectNoBackground() {
+            settings.noBackground = true;
+            settings.selectedImage = null;
+            saveSettings();
+            updateBackground();
+            updateImageList();
+            showToast('已設為無背景 ✓');
+        }
+
+        function selectImage(url) {
+            settings.noBackground = false;
+            settings.selectedImage = url;
+            settings.bgMode = 'fixed';
+            saveSettings();
+            updateBackground();
+            updateImageList();
+            document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('active'));
+            document.getElementById('modeFixed').classList.add('active');
+            showToast('已設為背景 ✓');
+        }
+
+        function deleteDefaultImage(index) {
+            if (!settings.deletedDefaultImages) settings.deletedDefaultImages = [];
+            settings.deletedDefaultImages.push(index);
+            saveSettings();
+            updateImageList();
+            updateBackground();
+            showToast('已刪除 ✓');
+        }
+
+        function deleteCustomImage(index) {
+            settings.customImages.splice(index, 1);
+            saveSettings();
+            updateImageList();
+            updateBackground();
+            updateStorageInfo();
+            showToast('已刪除 ✓');
+        }
+
+        // ===== 名言管理 =====
+        function updateQuoteList(filter = '') {
+            const container = document.getElementById('quoteList');
+            let html = '';
+            
+            defaultQuotesOriginal.forEach((originalQ, i) => {
+                const isDeleted = settings.deletedDefaultQuotes?.includes(i);
+                const isHidden = settings.hiddenDefaultQuotes?.includes(i);
+                const edited = settings.editedDefaultQuotes?.[i];
+                const q = edited || originalQ;
+                
+                if (isDeleted) return;
+                if (filter && !q.text.includes(filter) && !q.author.includes(filter)) return;
+                
+                html += `
+                    <div class="quote-item ${isHidden ? 'hidden-quote' : ''}">
+                        <div class="quote-item-text">${q.text.replace(/\n/g, '<br>')}</div>
+                        <div class="quote-item-author">— ${q.author} ${isHidden ? '(已隱藏)' : ''}</div>
+                        <div class="quote-item-actions ${quoteEditMode ? 'show' : ''}">
+                            <button class="quote-action-btn edit" onclick="openEditModal('default', ${i})" title="編輯">✏️</button>
+                            ${isHidden 
+                                ? `<button class="quote-action-btn restore" onclick="restoreQuote(${i})" title="恢復">🔄</button>`
+                                : `<button class="quote-action-btn hide" onclick="hideQuote(${i})" title="隱藏">👁️</button>`
+                            }
+                            <button class="quote-action-btn delete" onclick="deleteDefaultQuote(${i})" title="刪除">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            settings.customQuotes.forEach((q, i) => {
+                if (filter && !q.text.includes(filter) && !q.author.includes(filter)) return;
+                
+                html += `
+                    <div class="quote-item">
+                        <div class="quote-item-text">${q.text.replace(/\n/g, '<br>')}</div>
+                        <div class="quote-item-author">— ${q.author} (自訂)</div>
+                        <div class="quote-item-actions ${quoteEditMode ? 'show' : ''}">
+                            <button class="quote-action-btn edit" onclick="openEditModal('custom', ${i})" title="編輯">✏️</button>
+                            <button class="quote-action-btn delete" onclick="deleteCustomQuote(${i})" title="刪除">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html || '<div class="empty-state"><span>🔍</span>找不到</div>';
+            
+            const activeCount = getActiveQuotes().length;
+            const hiddenCount = settings.hiddenDefaultQuotes?.length || 0;
+            document.getElementById('quoteCount').textContent = `顯示 ${activeCount} 則${hiddenCount > 0 ? `，隱藏 ${hiddenCount} 則` : ''}`;
+            document.getElementById('restoreAllBtn').style.display = hiddenCount > 0 ? 'block' : 'none';
+        }
+
+        function updateQuoteEditButtons() {
+            const btnGroup = document.getElementById('quoteEditBtnGroup');
+            if (quoteEditMode) {
+                btnGroup.innerHTML = `
+                    <button class="btn btn-primary" id="quoteSaveBtn">💾 儲存</button>
+                    <button class="btn btn-cancel" id="quoteCancelBtn">取消</button>
+                `;
+                document.getElementById('quoteSaveBtn').addEventListener('click', () => {
+                    quoteEditMode = false;
+                    updateQuoteEditButtons();
+                    updateQuoteList(document.getElementById('searchQuote').value);
+                    showToast('已儲存 ✓');
+                });
+                document.getElementById('quoteCancelBtn').addEventListener('click', () => {
+                    quoteEditMode = false;
+                    updateQuoteEditButtons();
+                    updateQuoteList(document.getElementById('searchQuote').value);
+                });
+            } else {
+                btnGroup.innerHTML = `<button class="btn btn-secondary" id="quoteEditBtn">✏️ 編輯</button>`;
+                document.getElementById('quoteEditBtn').addEventListener('click', () => {
+                    quoteEditMode = true;
+                    updateQuoteEditButtons();
+                    updateQuoteList(document.getElementById('searchQuote').value);
+                });
+            }
+        }
+
+        function openEditModal(type, index) {
+            editingQuoteType = type;
+            editingQuoteIndex = index;
+            
+            let q = type === 'default' 
+                ? (settings.editedDefaultQuotes?.[index] || defaultQuotesOriginal[index])
+                : settings.customQuotes[index];
+            
+            document.getElementById('editQuoteText').value = q.text;
+            document.getElementById('editQuoteAuthor').value = q.author;
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function saveEditQuote() {
+            const text = document.getElementById('editQuoteText').value.trim();
+            const author = document.getElementById('editQuoteAuthor').value.trim();
+            
+            if (!text || !author) { showToast('請填寫完整'); return; }
+            
+            if (editingQuoteType === 'default') {
+                if (!settings.editedDefaultQuotes) settings.editedDefaultQuotes = {};
+                settings.editedDefaultQuotes[editingQuoteIndex] = { text, author };
+            } else {
+                settings.customQuotes[editingQuoteIndex] = { text, author };
+            }
+            
+            saveSettings();
+            updateQuoteList(document.getElementById('searchQuote').value);
+            updateQuote();
+            closeEditModal();
+            showToast('已儲存 ✓');
+        }
+
+        function hideQuote(index) {
+            if (!settings.hiddenDefaultQuotes) settings.hiddenDefaultQuotes = [];
+            if (!settings.hiddenDefaultQuotes.includes(index)) {
+                settings.hiddenDefaultQuotes.push(index);
+                saveSettings();
+                updateQuoteList(document.getElementById('searchQuote').value);
+                updateQuote();
+                showToast('已隱藏 ✓');
+            }
+        }
+
+        function restoreQuote(index) {
+            settings.hiddenDefaultQuotes = settings.hiddenDefaultQuotes?.filter(i => i !== index) || [];
+            saveSettings();
+            updateQuoteList(document.getElementById('searchQuote').value);
+            updateQuote();
+            showToast('已恢復 ✓');
+        }
+
+        function restoreAllQuotes() {
+            settings.hiddenDefaultQuotes = [];
+            saveSettings();
+            updateQuoteList(document.getElementById('searchQuote').value);
+            updateQuote();
+            showToast('已恢復所有 ✓');
+        }
+
+        function deleteDefaultQuote(index) {
+            if (confirm('確定要刪除這則名言嗎？')) {
+                if (!settings.deletedDefaultQuotes) settings.deletedDefaultQuotes = [];
+                settings.deletedDefaultQuotes.push(index);
+                settings.hiddenDefaultQuotes = settings.hiddenDefaultQuotes?.filter(i => i !== index) || [];
+                saveSettings();
+                updateQuoteList(document.getElementById('searchQuote').value);
+                updateQuote();
+                showToast('已刪除 ✓');
+            }
+        }
+
+        function deleteCustomQuote(index) {
+            settings.customQuotes.splice(index, 1);
+            saveSettings();
+            updateQuoteList(document.getElementById('searchQuote').value);
+            updateQuote();
+            updateStorageInfo();
+            showToast('已刪除 ✓');
+        }
+
+        function bulkImportQuotes() {
+            const text = document.getElementById('bulkImportText').value.trim();
+            if (!text) { showToast('請輸入名言'); return; }
+            let imported = 0;
+            text.split('\n').filter(l => l.trim()).forEach(line => {
+                const parts = line.split('|');
+                if (parts.length >= 2 && parts[0].trim() && parts[1].trim()) {
+                    settings.customQuotes.push({ text: parts[0].trim(), author: parts[1].trim() });
+                    imported++;
+                }
+            });
+            if (imported > 0) {
+                saveSettings();
+                updateQuoteList();
+                updateStorageInfo();
+                document.getElementById('bulkImportText').value = '';
+                showToast(`匯入 ${imported} 則 ✓`);
+            } else {
+                showToast('格式錯誤');
+            }
+        }
+
+        // ===== 願望清單 =====
+        function updateWishList() {
+            const container = document.getElementById('wishList');
+            
+            if (settings.wishlist.length === 0) {
+                container.innerHTML = '<div class="empty-state"><span>📝</span>還沒有願望<br>新增一個吧！</div>';
+                return;
+            }
+            
+            let html = '<div class="drop-zone" data-target="parent" data-index="0"></div>';
+            
+            settings.wishlist.forEach((wish, idx) => {
+                html += `
+                    <div class="wish-group" data-index="${idx}">
+                        <div class="wish-parent">
+                            <span class="drag-handle" draggable="true" data-type="parent" data-index="${idx}">☰</span>
+                            <div class="wish-checkbox ${wish.completed ? 'checked' : ''}" onclick="toggleWish(${idx})">${wish.completed ? '✓' : ''}</div>
+                            <span class="wish-text ${wish.completed ? 'completed' : ''}" onclick="editWishText(${idx}, 'parent')" id="wish-text-${idx}">${wish.text}</span>
+                            <div class="wish-actions">
+                                <button class="wish-action-btn expand-btn ${wish.expanded ? 'expanded' : ''}" onclick="toggleExpand(${idx})">▼</button>
+                                <button class="wish-action-btn delete" onclick="deleteWish(${idx})">×</button>
+                            </div>
+                        </div>
+                        <div class="sub-wishes ${wish.expanded ? 'show' : ''}" id="sub-${idx}">
+                            <div class="sub-drop-zone" data-target="sub" data-parent="${idx}" data-index="0"></div>
+                            ${(wish.subItems || []).map((sub, subIdx) => `
+                                <div class="sub-wish-item" data-parent="${idx}" data-sub="${subIdx}">
+                                    <span class="drag-handle-sub" draggable="true" data-type="sub" data-parent="${idx}" data-index="${subIdx}">⋮⋮</span>
+                                    <div class="wish-checkbox ${sub.completed ? 'checked' : ''}" onclick="toggleSubWish(${idx}, ${subIdx})">${sub.completed ? '✓' : ''}</div>
+                                    <span class="wish-text ${sub.completed ? 'completed' : ''}" onclick="editWishText(${idx}, 'sub', ${subIdx})" id="wish-text-${idx}-${subIdx}">${sub.text}</span>
+                                    <button class="wish-action-btn delete" onclick="deleteSubWish(${idx}, ${subIdx})">×</button>
+                                </div>
+                                <div class="sub-drop-zone" data-target="sub" data-parent="${idx}" data-index="${subIdx + 1}"></div>
+                            `).join('')}
+                            <div class="add-sub-wish" onclick="showSubWishInput(${idx})">
+                                <span style="margin-right:5px;">＋</span> 新增子項目
+                            </div>
+                            <div id="sub-input-${idx}" style="display:none; padding: 8px 0;">
+                                <div style="display:flex; gap:8px;">
+                                    <input type="text" style="flex:1; padding:8px; border:1px solid var(--sand-warm); border-radius:6px; font-size:0.9rem;" id="sub-text-${idx}" placeholder="子項目..." onkeypress="if(event.key==='Enter')addSubWish(${idx})">
+                                    <button class="btn btn-primary btn-small" onclick="addSubWish(${idx})">➕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="drop-zone" data-target="parent" data-index="${idx + 1}"></div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            setupDragAndDrop();
+            
+            const total = settings.wishlist.length;
+            const completed = settings.wishlist.filter(w => w.completed).length;
+            const subTotal = settings.wishlist.reduce((sum, w) => sum + (w.subItems?.length || 0), 0);
+            document.getElementById('wishCount').textContent = `${total} 個願望，${subTotal} 個子項目，已完成 ${completed}`;
+        }
+
+        function editWishText(parentIdx, type, subIdx) {
+            let currentText, elementId;
+            
+            if (type === 'parent') {
+                currentText = settings.wishlist[parentIdx].text;
+                elementId = `wish-text-${parentIdx}`;
+            } else {
+                currentText = settings.wishlist[parentIdx].subItems[subIdx].text;
+                elementId = `wish-text-${parentIdx}-${subIdx}`;
+            }
+            
+            const el = document.getElementById(elementId);
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'wish-text-input';
+            input.value = currentText;
+            
+            el.replaceWith(input);
+            input.focus();
+            input.select();
+            
+            const save = () => {
+                const newText = input.value.trim();
+                if (newText) {
+                    if (type === 'parent') {
+                        settings.wishlist[parentIdx].text = newText;
+                    } else {
+                        settings.wishlist[parentIdx].subItems[subIdx].text = newText;
+                    }
+                    saveSettings();
+                }
+                updateWishList();
+            };
+            
+            input.addEventListener('blur', save);
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') save(); });
+        }
+
+        function setupDragAndDrop() {
+            const wishListContainer = document.getElementById('wishList');
+            const scrollZoneTop = document.getElementById('scrollZoneTop');
+            const scrollZoneBottom = document.getElementById('scrollZoneBottom');
+            
+            document.querySelectorAll('[draggable="true"]').forEach(handle => {
+                handle.addEventListener('dragstart', handleDragStart);
+                handle.addEventListener('dragend', handleDragEnd);
+            });
+            
+            document.querySelectorAll('.drop-zone, .sub-drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+            
+            const wrapper = document.querySelector('.wish-list-wrapper');
+            if (wrapper) {
+                wrapper.addEventListener('dragover', (e) => {
+                    const rect = wrapper.getBoundingClientRect();
+                    const y = e.clientY;
+                    const threshold = 60;
+                    
+                    clearInterval(autoScrollInterval);
+                    scrollZoneTop.classList.remove('active');
+                    scrollZoneBottom.classList.remove('active');
+                    
+                    if (y < rect.top + threshold) {
+                        scrollZoneTop.classList.add('active');
+                        autoScrollInterval = setInterval(() => {
+                            wishListContainer.scrollTop -= 15;
+                        }, 30);
+                    } else if (y > rect.bottom - threshold) {
+                        scrollZoneBottom.classList.add('active');
+                        autoScrollInterval = setInterval(() => {
+                            wishListContainer.scrollTop += 15;
+                        }, 30);
+                    }
+                });
+            }
+        }
+
+        function handleDragStart(e) {
+            dragType = this.dataset.type;
+            dragData = {
+                type: dragType,
+                parentIndex: parseInt(this.dataset.parent || this.dataset.index),
+                subIndex: dragType === 'sub' ? parseInt(this.dataset.index) : null
+            };
+            
+            if (dragType === 'parent') {
+                this.closest('.wish-group').classList.add('dragging');
+            } else {
+                this.closest('.sub-wish-item').classList.add('dragging');
+            }
+            
+            document.querySelectorAll('.drop-zone, .sub-drop-zone').forEach(z => z.classList.add('active'));
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            dragType = null;
+            dragData = null;
+            clearInterval(autoScrollInterval);
+            document.getElementById('scrollZoneTop')?.classList.remove('active');
+            document.getElementById('scrollZoneBottom')?.classList.remove('active');
+            document.querySelectorAll('.wish-group, .sub-wish-item').forEach(el => el.classList.remove('dragging'));
+            document.querySelectorAll('.drop-zone, .sub-drop-zone').forEach(z => z.classList.remove('active'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.style.background = 'rgba(74, 139, 139, 0.3)';
+        }
+
+        function handleDragLeave(e) {
+            this.style.background = '';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.style.background = '';
+            clearInterval(autoScrollInterval);
+            
+            if (!dragData) return;
+            
+            const targetType = this.dataset.target;
+            const targetParent = parseInt(this.dataset.parent || -1);
+            const targetIndex = parseInt(this.dataset.index);
+            
+            let draggedItem;
+            if (dragData.type === 'parent') {
+                draggedItem = settings.wishlist.splice(dragData.parentIndex, 1)[0];
+            } else {
+                draggedItem = settings.wishlist[dragData.parentIndex].subItems.splice(dragData.subIndex, 1)[0];
+            }
+            
+            if (targetType === 'parent') {
+                const newParent = {
+                    id: Date.now(),
+                    text: draggedItem.text,
+                    completed: draggedItem.completed,
+                    expanded: false,
+                    subItems: draggedItem.subItems || []
+                };
+                
+                let insertIdx = targetIndex;
+                if (dragData.type === 'parent' && dragData.parentIndex < targetIndex) insertIdx--;
+                
+                settings.wishlist.splice(insertIdx, 0, newParent);
+            } else {
+                const newSub = { id: Date.now(), text: draggedItem.text, completed: draggedItem.completed };
+                
+                if (!settings.wishlist[targetParent].subItems) settings.wishlist[targetParent].subItems = [];
+                
+                let insertIdx = targetIndex;
+                if (dragData.type === 'sub' && dragData.parentIndex === targetParent && dragData.subIndex < targetIndex) insertIdx--;
+                
+                settings.wishlist[targetParent].subItems.splice(insertIdx, 0, newSub);
+                settings.wishlist[targetParent].expanded = true;
+            }
+            
+            saveSettings();
+            updateWishList();
+            showToast('已調整 ✓');
+        }
+
+        function addWish() {
+            const input = document.getElementById('newWishInput');
+            const text = input.value.trim();
+            if (text) {
+                settings.wishlist.push({ id: Date.now(), text, completed: false, expanded: false, subItems: [] });
+                saveSettings();
+                updateWishList();
+                input.value = '';
+                showToast('已新增 ✓');
+            }
+        }
+
+        function toggleWish(idx) {
+            const newState = !settings.wishlist[idx].completed;
+            settings.wishlist[idx].completed = newState;
+            if (newState && settings.wishlist[idx].subItems) {
+                settings.wishlist[idx].subItems.forEach(sub => sub.completed = true);
+            }
+            saveSettings();
+            updateWishList();
+        }
+
+        function deleteWish(idx) {
+            settings.wishlist.splice(idx, 1);
+            saveSettings();
+            updateWishList();
+            showToast('已刪除 ✓');
+        }
+
+        function toggleExpand(idx) {
+            settings.wishlist[idx].expanded = !settings.wishlist[idx].expanded;
+            saveSettings();
+            updateWishList();
+        }
+
+        function showSubWishInput(idx) {
+            const inputDiv = document.getElementById(`sub-input-${idx}`);
+            inputDiv.style.display = inputDiv.style.display === 'none' ? 'block' : 'none';
+            if (inputDiv.style.display === 'block') document.getElementById(`sub-text-${idx}`).focus();
+        }
+
+        function addSubWish(idx) {
+            const input = document.getElementById(`sub-text-${idx}`);
+            const text = input.value.trim();
+            if (text) {
+                if (!settings.wishlist[idx].subItems) settings.wishlist[idx].subItems = [];
+                settings.wishlist[idx].subItems.push({ id: Date.now(), text, completed: false });
+                settings.wishlist[idx].expanded = true;
+                saveSettings();
+                updateWishList();
+                showToast('已新增 ✓');
+            }
+        }
+
+        function toggleSubWish(parentIdx, subIdx) {
+            settings.wishlist[parentIdx].subItems[subIdx].completed = !settings.wishlist[parentIdx].subItems[subIdx].completed;
+            saveSettings();
+            updateWishList();
+        }
+
+        function deleteSubWish(parentIdx, subIdx) {
+            settings.wishlist[parentIdx].subItems.splice(subIdx, 1);
+            saveSettings();
+            updateWishList();
+            showToast('已刪除 ✓');
+        }
+
+        // ===== 匯出匯入 =====
+        function exportData() {
+            const data = { version: 8, exportDate: new Date().toISOString(), settings };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Kolya備份_${new Date().toLocaleDateString('zh-TW').replace(/\//g, '-')}.json`;
+            a.click();
+            showToast('已下載備份檔 ✓');
+        }
+
+        function importData(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.settings) {
+                        settings = { ...settings, ...data.settings };
+                        saveSettings();
+                        loadSettings();
+                        migrateData();
+                        applyTheme();
+                        updateTitle();
+                        updateCountdown();
+                        updateQuote();
+                        updateBackground();
+                        updateImageList();
+                        updateQuoteList();
+                        updateWishList();
+                        updateStorageInfo();
+                        showToast('已還原 ✓');
+                    }
+                } catch (err) { showToast('檔案格式錯誤'); }
+            };
+            reader.readAsText(file);
+        }
+
+        function updateStorageInfo() {
+            const data = localStorage.getItem('kolyaFreedomCountdown') || '';
+            const sizeKB = new Blob([data]).size / 1024;
+            document.getElementById('storageInfo').textContent = `已使用 ${sizeKB.toFixed(1)} KB / 5120 KB`;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                document.getElementById('settingsPanel').classList.add('open');
+                document.getElementById('overlay').classList.add('show');
+            });
+            
+            document.getElementById('wishlistBtn').addEventListener('click', () => {
+                document.getElementById('wishlistPanel').classList.add('open');
+                document.getElementById('overlay').classList.add('show');
+            });
+            
+            const closeAll = () => {
+                document.getElementById('settingsPanel').classList.remove('open');
+                document.getElementById('wishlistPanel').classList.remove('open');
+                document.getElementById('overlay').classList.remove('show');
+            };
+            
+            document.getElementById('closeBtn').addEventListener('click', closeAll);
+            document.getElementById('closeWishlistBtn').addEventListener('click', closeAll);
+            document.getElementById('overlay').addEventListener('click', closeAll);
+            
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            document.getElementById('saveTitleBtn').addEventListener('click', () => {
+                settings.customTitle = document.getElementById('customTitle').value.trim() || 'Kolya自由倒數';
+                saveSettings();
+                updateTitle();
+                showToast('已更新 ✓');
+            });
+            
+            document.getElementById('saveDateBtn').addEventListener('click', () => {
+                settings.retirementDate = document.getElementById('retirementDate').value;
+                settings.startDate = new Date().toISOString().split('T')[0];
+                settings.celebratedMilestones = [];
+                saveSettings();
+                updateCountdown();
+                checkMilestoneCelebration();
+                showToast('已儲存 ✓');
+            });
+            
+            document.querySelectorAll('.mode-option').forEach(el => {
+                el.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-option').forEach(e => e.classList.remove('active'));
+                    el.classList.add('active');
+                    settings.bgMode = el.querySelector('input').value;
+                    settings.noBackground = false;
+                    saveSettings();
+                    updateBackground();
+                    updateImageList();
+                    showToast('已更改 ✓');
+                });
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const group = tab.parentElement;
+                    const content = group.parentElement;
+                    const name = tab.dataset.tab;
+                    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    content.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    const target = document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1));
+                    if (target) target.classList.add('active');
+                });
+            });
+            
+            document.getElementById('addUrlBtn').addEventListener('click', () => {
+                const url = document.getElementById('imageUrl').value.trim();
+                if (url) {
+                    settings.customImages.push(url);
+                    saveSettings();
+                    updateImageList();
+                    updateStorageInfo();
+                    document.getElementById('imageUrl').value = '';
+                    showToast('已新增');
+                }
+            });
+            
+            document.getElementById('uploadBtn').addEventListener('click', () => document.getElementById('imageUpload').click());
+            
+            document.getElementById('imageUpload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        settings.customImages.push(ev.target.result);
+                        saveSettings();
+                        updateImageList();
+                        updateStorageInfo();
+                        showToast('已上傳 ✓');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.getElementById('quoteEditBtn').addEventListener('click', () => {
+                quoteEditMode = true;
+                updateQuoteEditButtons();
+                updateQuoteList(document.getElementById('searchQuote').value);
+            });
+            
+            document.getElementById('addQuoteBtn').addEventListener('click', () => {
+                const text = document.getElementById('newQuoteText').value.trim();
+                const author = document.getElementById('newQuoteAuthor').value.trim();
+                if (text && author) {
+                    settings.customQuotes.push({ text, author });
+                    saveSettings();
+                    updateQuoteList();
+                    updateStorageInfo();
+                    document.getElementById('newQuoteText').value = '';
+                    document.getElementById('newQuoteAuthor').value = '';
+                    showToast('已新增 ✓');
+                } else {
+                    showToast('請填寫完整');
+                }
+            });
+            
+            document.getElementById('bulkImportBtn').addEventListener('click', bulkImportQuotes);
+            document.getElementById('searchQuote').addEventListener('input', (e) => updateQuoteList(e.target.value));
+            document.getElementById('restoreAllBtn').addEventListener('click', restoreAllQuotes);
+            
+            document.getElementById('cancelEditBtn').addEventListener('click', closeEditModal);
+            document.getElementById('saveEditBtn').addEventListener('click', saveEditQuote);
+            document.getElementById('editModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('editModal')) closeEditModal();
+            });
+            
+            document.getElementById('addWishBtn').addEventListener('click', addWish);
+            document.getElementById('newWishInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addWish(); });
+            
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+            document.getElementById('importFile').addEventListener('change', (e) => { if (e.target.files[0]) importData(e.target.files[0]); });
+            
+            document.getElementById('closeCelebrationBtn').addEventListener('click', () => document.getElementById('celebrationOverlay').classList.remove('show'));
+        }
+    </script>
+</body>
+</html>
