@@ -1,0 +1,16 @@
+{
+  "name": "Kolya自由倒數",
+  "short_name": "自由倒數",
+  "icons": [
+    {
+      "src": "app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#F5F1EB",
+  "theme_color": "#2C5F5D"
+}
