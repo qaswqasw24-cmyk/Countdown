@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下載 App 圖示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            font-family: -apple-system, sans-serif;
+            color: white;
+        }
+        h1 { margin-bottom: 30px; font-size: 1.3rem; }
+        
+        .preview {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        canvas {
+            border-radius: 26px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2C5F5D, #4A8B8B);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .btn:hover { opacity: 0.9; }
+        
+        .instructions {
+            margin-top: 40px;
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 400px;
+            line-height: 1.8;
+            font-size: 0.9rem;
+        }
+        
+        .instructions h2 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #7FB3B3;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 你的 App 圖示</h1>
+    
+    <div class="preview">
+        <canvas id="iconCanvas" width="512" height="512"></canvas>
+    </div>
+    
+    <button class="btn" onclick="downloadIcon()">📥 下載圖示 (PNG)</button>
+    
+    <div class="instructions">
+        <h2>📋 使用步驟</h2>
+        <ol>
+            <li>點上方按鈕下載 <code>app-icon.png</code></li>
+            <li>到你的 GitHub Repository</li>
+            <li>點 <strong>Add file</strong> → <strong>Upload files</strong></li>
+            <li>上傳 <code>app-icon.png</code></li>
+            <li>點 <strong>Commit changes</strong></li>
+            <li>完成！重新加到主畫面就會有新圖示</li>
+        </ol>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 繪製背景漸層
+        const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+        gradient.addColorStop(0, '#2C5F5D');
+        gradient.addColorStop(0.5, '#4A8B8B');
+        gradient.addColorStop(1, '#7FB3B3');
+        
+        // 圓角矩形
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 512, 512, 90);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // 繪製 emoji
+        ctx.font = '200px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✨', 256, 270);
+        
+        function downloadIcon() {
+            const link = document.createElement('a');
+            link.download = 'app-icon.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
